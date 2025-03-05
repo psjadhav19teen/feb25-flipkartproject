@@ -153,3 +153,13 @@ LOGOUT_REDIRECT_URL = "/"
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ""
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ""
+
+
+#Host mail
+
+EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST="smtp.gmail.com"
+EMAIL_USE_TLS=True
+EMAIL_PORT=587
+# EMAIL_HOST_USER="priya.jadhav@itvedant.com"
+# EMAIL_HOST_PASSWORD="rmaf jjjm qnca hghh"
