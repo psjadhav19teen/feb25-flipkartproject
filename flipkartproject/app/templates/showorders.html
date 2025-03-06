@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}FlipKart|Orders{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <h2 class="text-center">My Orders</h2>
+        {% if allpayment %}
+        <table class="table table-bordered">
+            <thead>
+                <th>Sr.No</th>
+                <th>OrderID</th>
+                <th>Receipt Number</th>
+                <th>TotalPrice</th>
+            </thead>
+
+            <tbody>
+                {% for x in allpayment %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{x.orderid.orderid}}</td>
+                    <td>{{x.receiptid}}</td>
+                    <td>{{x.totalprice}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% else %}
+        <mark><h2 class="text-center bg-danger">You have no orders yet!!</h2></mark>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock %}
