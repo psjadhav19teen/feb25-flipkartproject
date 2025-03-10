@@ -375,7 +375,17 @@ def addaddress_single(req,productid=None):
 
 def addaddress_all(req):
     if req.user.is_authenticated:
-        
+        productid=None
+        if productid==None:
+            payment_type="all" 
+            req.session["payment_type"]=payment_type
+            
+        else:
+            payment_type="single"
+            req.session["payment_type"]=payment_type
+            req.session["productid"]=productid
+
+        print(payment_type)
         if req.method=="POST":
             form=AddressForm(req.POST)
             if form.is_valid():
@@ -412,8 +422,6 @@ from django.core.mail import send_mail
 
 def payment(req):
     if req.user.is_authenticated:
-        
-        
         payment_type=req.session.get("payment_type")
         productid=req.session.get("productid")
         print(payment_type,productid)
