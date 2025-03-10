@@ -9,16 +9,16 @@
             {% csrf_token %}
             <div class="list-group">
                 {% for x in address %}
-
-                <div class="list-group-item">
-                    <input type="radio" id="x_{{x.id}}">
-                    <label for="x_{{x.id}}">
+                
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="exampleRadios" id="x_{{x.id}}" value="option1" checked>
+                    <label class="form-check-label" for="x_{{x.id}}">
                         <strong>Mobile:</strong>{{x.mobile}}<br>
                         <strong>Address:</strong>{{x.address}}<br>
                         <strong>Pincode:</strong>{{x.pincode}}<br>
                     </label>
-                </div>
-                
+                  </div>
+
                 {% empty %}
                 <div class="alert alert-warning">
                     No saved addresses found!

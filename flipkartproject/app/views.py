@@ -343,11 +343,22 @@ def updateqty(req,qv,productid):
 
 from .forms import AddressForm
 
-def addaddress(req):
+def addaddress_single(req,productid=None):
     if req.user.is_authenticated:
+        print(productid)
+        if productid==None:
+            payment_type="all" 
+            req.session["payment_type"]=payment_type
+            
+        else:
+            payment_type="single"
+            req.session["payment_type"]=payment_type
+            req.session["productid"]=productid
+
+        print(payment_type)
+
         if req.method=="POST":
             form=AddressForm(req.POST)
-
             if form.is_valid():
                 address=form.save(commit=False)
                 address.userid=req.user
@@ -362,6 +373,24 @@ def addaddress(req):
     else:
         return redirect('/signin')
 
+def addaddress_all(req):
+    if req.user.is_authenticated:
+        
+        if req.method=="POST":
+            form=AddressForm(req.POST)
+            if form.is_valid():
+                address=form.save(commit=False)
+                address.userid=req.user
+                address.save()
+                return redirect('/showaddress')
+
+        else:
+            form=AddressForm()
+        
+        context={'form':form}
+        return render(req,'addaddress.html',context)
+    else:
+        return redirect('/signin')
 
 def showaddress(req):
     if req.user.is_authenticated:
@@ -383,40 +412,51 @@ from django.core.mail import send_mail
 
 def payment(req):
     if req.user.is_authenticated:
-        try:
+        
+        
+        payment_type=req.session.get("payment_type")
+        productid=req.session.get("productid")
+        print(payment_type,productid)
+
+        if payment_type=="single":
+            cartitems=Cart.objects.filter(userid=req.user.id,productid=productid)
+            print(cartitems)
+        else:
             cartitems=Cart.objects.filter(userid=req.user.id)
-            totalamount=sum(i.productid.price*i.qty for i in cartitems)
-            print(totalamount)
-            userid=req.user
+            print(cartitems)
 
-            
-            for items in cartitems:
-                orderid=random.randrange(1000,9000000)
-                orderdata=Orders.objects.create(orderid=orderid,productid=items.productid,userid=userid,qty=items.qty)
-                orderdata.save()
+        totalamount=sum(i.productid.price*i.qty for i in cartitems)
+        print(totalamount)
+        userid=req.user
 
-                receiptid=random.randrange(10000000,80000000)
-                paymentdata=Payment.objects.create(receiptid=receiptid,orderid=orderdata,userid=userid,totalprice=totalamount)
-                paymentdata.save()
-            print(orderid,receiptid)
+        
+        for items in cartitems:
+            orderid=random.randrange(1000,9000000)
+            orderdata=Orders.objects.create(orderid=orderid,productid=items.productid,userid=userid,qty=items.qty)
+            orderdata.save()
 
-            client = razorpay.Client(auth=("rzp_test_wH0ggQnd7iT3nB", "eZseshY3oSsz2fcHZkTiSlCm"))
-            data = { "amount": totalamount*100, "currency": "INR", "receipt": str(receiptid) }
-            payment = client.order.create(data=data) # Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-            
-            cartitems.delete()
-            
-            # subject=f"FlipKartClone Payment Status for your Order={orderid}"
-            # msg=f"Hi {userid},Thank you for using our services\n Total Amount Paid by you is {totalamount}"
-            # emailfrom=settings.EMAIL_HOST_USER
-            # receiver=[userid]
-            # send_mail(subject,msg,emailfrom,receiver)
-            
-            context={"data":payment,"amount":totalamount}
+            receiptid=random.randrange(10000000,80000000)
+            paymentdata=Payment.objects.create(receiptid=receiptid,orderid=orderdata,userid=userid,totalprice=totalamount)
+            paymentdata.save()
+        print(orderid,receiptid)
 
-        except:
-            context={}    
-            context["error"]="An error occured while creating payment. Please try again!"
+        client = razorpay.Client(auth=("rzp_test_wH0ggQnd7iT3nB", "eZseshY3oSsz2fcHZkTiSlCm"))
+        data = { "amount": totalamount*100, "currency": "INR", "receipt": str(receiptid) }
+        payment = client.order.create(data=data) # Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        
+        cartitems.delete()
+        
+        # subject=f"FlipKartClone Payment Status for your Order={orderid}"
+        # msg=f"Hi {userid},Thank you for using our services\n Total Amount Paid by you is {totalamount}"
+        # emailfrom=settings.EMAIL_HOST_USER
+        # receiver=[userid]
+        # send_mail(subject,msg,emailfrom,receiver)
+        
+        context={"data":payment,"amount":totalamount}
+
+        # except:
+        #     context={}    
+        #     context["error"]="An error occured while creating payment. Please try again!"
     
     return render(req,'payment.html',context)
 
