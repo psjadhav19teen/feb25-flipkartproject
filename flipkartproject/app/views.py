@@ -297,7 +297,7 @@ def showcarts(req):
         context={'allcarts':allcarts,'totalitems':totalitems,'totalamount':totalamount}
     return render(req,'showcarts.html',context)
 
-
+print()
 def addtocart(req,productid):
     if req.user.is_authenticated:
         userid=req.user
@@ -379,7 +379,6 @@ def addaddress_all(req):
         if productid==None:
             payment_type="all" 
             req.session["payment_type"]=payment_type
-            
         else:
             payment_type="single"
             req.session["payment_type"]=payment_type
